@@ -628,7 +628,7 @@ body.is-blank { background: #000; }
 
   .home {
     grid-template-columns: 1fr 1.55fr;
-    grid-template-rows: 11rem 13rem 10rem minmax(22rem, 1fr);
+    grid-template-rows: 11rem 18rem 13rem minmax(18rem, 1fr);
     grid-template-areas:
       "sensors scene"
       "manual manual"
