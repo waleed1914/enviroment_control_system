@@ -77,7 +77,7 @@ def read_dht():
             [sys.executable, str(ROOT / "read_dht.py")],
             capture_output=True,
             text=True,
-            timeout=6,
+            timeout=15,
             check=True,
         )
         reading = json.loads(result.stdout.strip())
