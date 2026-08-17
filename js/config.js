@@ -78,9 +78,9 @@ export const LIMITS = {
  */
 export const PINOUT = {
   dht11:        { pin: 4,  note: 'DHT11 data (1-wire, 4k7 pull-up)' },
-  relayHeater:  { pin: 17, note: 'Relay CH1 — heating pad' },
+  relayHeater:  { pin: 21, note: 'Physical pin 40 — heating pad relay' },
   relayAtomizer:{ pin: 26, note: 'Physical pin 37 — atomizer relay' },
-  relayLed:     { pin: 22, note: 'Relay CH3 — LED light' },
+  relayLed:     { pin: 20, note: 'Physical pin 38 — light relay' },
   dimmerPwm:    { pin: 18, note: 'Dimmer GATE (PWM) — fan' },
   dimmerZc:     { pin: 23, note: 'Dimmer Z-C — zero-cross interrupt' },
 };

@@ -13,7 +13,7 @@ exactly as it sits in this folder.
 
 ```bash
 cd enviroment_control_system
-python3 -m http.server 8080
+python3 server.py
 ```
 
 Then open <http://localhost:8080>. (ES modules need `http://`; opening
@@ -72,12 +72,8 @@ snapshot handed to them in `update(state)`.
 
 ## Wiring the real hardware in
 
-`js/api.js` currently runs a **simulator** — a small thermal model so the whole
-interface can be driven on a laptop. Everything else is already wired for the
-real thing.
-
-Point it at the Pi service by setting `window.CB_BACKEND = 'http'` before the
-app boots (a one-line `<script>` in `index.html`), and implement:
+`server.py` serves the UI, reads the DHT11, and controls the connected outputs.
+`index.html` enables the HTTP backend by default. Its API is:
 
 ```
 GET  /api/state                -> { sensors: { temp, humidity } }
@@ -98,6 +94,11 @@ Current connected wiring (physical 40-pin header numbering):
 
 - DHT11 data: physical pin 7 (BCM GPIO4)
 - Atomizer relay: physical pin 37 (BCM GPIO26)
+- Light relay: physical pin 38 (BCM GPIO20)
+- Heating pad relay: physical pin 40 (BCM GPIO21)
+
+The heating pad and light relays are active-low. The atomizer output is
+active-high, matching the supplied hardware test scripts.
 
 ## Safety behaviour already built in
 
@@ -108,12 +109,13 @@ Current connected wiring (physical 40-pin header numbering):
 - Touching a manual control during a cycle flags it **MANUAL OVERRIDE** rather
   than silently drifting from the preset.
 
-These are UI-level guards. The Pi service should enforce its own limits too —
-a browser tab is not a safety interlock.
+These are UI-level guards. A browser tab is not a safety interlock; use
+independent thermal protection and correctly rated switching hardware.
 
 ## Not done yet
 
-- Real backend (this is UI only, per the current scope).
+- Fan GPIO control (the API retains its requested value until the fan hardware
+  is connected).
 - Scene changes persist to `localStorage`, not to a file on the Pi.
 - Screen brightness is applied as a CSS dim; on the Pi it should write to
   `/sys/class/backlight/…/brightness` through the backend.
