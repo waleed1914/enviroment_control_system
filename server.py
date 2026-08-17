@@ -22,12 +22,11 @@ HEATER_PIN = 40
 LIGHT_PIN = 38
 ATOMIZER_PIN = 37
 
-# The relay test uses LOW for ON. The atomizer test returns LOW when stopping,
-# so it is treated as active-high.
+# All three installed relay channels are active-low.
 RELAY_ON = GPIO.LOW
 RELAY_OFF = GPIO.HIGH
-ATOMIZER_ON = GPIO.HIGH
-ATOMIZER_OFF = GPIO.LOW
+ATOMIZER_ON = GPIO.LOW
+ATOMIZER_OFF = GPIO.HIGH
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
