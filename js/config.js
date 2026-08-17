@@ -88,5 +88,5 @@ export const PINOUT = {
 export const APP = {
   name: 'Climate Box',
   version: '0.1.0',
-  display: '1280 × 720 · Touch Display 2',
+  display: '720 × 1280 portrait · Touch Display 2',
 };

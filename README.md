@@ -2,8 +2,9 @@
 
 Front-end for the Raspberry Pi 5 climate box: DHT11 temperature/humidity,
 relay-driven heating pad / atomizer / LED, and a 220 V zero-crossing dimmer
-for the fan. Laid out for the **Raspberry Pi Touch Display 2 at 1280 × 720
-landscape**, finger-first, no scrolling on the main screens.
+for the fan. Includes a responsive **720 × 1280 portrait** layout for the
+customer's Raspberry Pi display, with touch-first controls and no scrolling on
+the main screen.
 
 No build step, no framework, no CDN — plain ES modules, so it runs on the Pi
 exactly as it sits in this folder.

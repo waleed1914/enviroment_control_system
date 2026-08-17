@@ -606,3 +606,55 @@ body.is-blank { background: #000; }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* Portrait kiosk layout (for a 720 x 1280 mounted display). */
+@media (orientation: portrait) {
+  :root {
+    font-size: min(1.67vw, 1vh);
+    --gap: 0.7rem;
+  }
+
+  #app {
+    grid-template-rows: 4.6rem 1fr 5rem 0.8rem;
+    padding: 0.55rem 0.75rem 0.15rem;
+  }
+
+  .topbar { grid-template-columns: 1fr auto auto; gap: 1rem; }
+  .brand h1 { font-size: 1.45rem; }
+  .brand-mark { width: 2.25rem; height: 2.25rem; }
+  .clock-time { font-size: 1.55rem; }
+  .clock-date { display: none; }
+  .topbar-status { gap: 0.8rem; }
+  .stat { font-size: 0.92rem; }
+
+  .home {
+    grid-template-columns: 1fr 1.55fr;
+    grid-template-rows: 11rem 13rem 10rem minmax(22rem, 1fr);
+    grid-template-areas:
+      "sensors scene"
+      "manual manual"
+      "devices devices"
+      "presets presets";
+  }
+
+  .device-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .manual-grid { grid-template-columns: 1fr 1fr; }
+  .manual-grid .tile { min-height: 0; }
+
+  .preset-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+  .preset { min-height: 0; }
+
+  .scene-editor { grid-template-columns: 1fr 1fr; }
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+  .stat-strip { grid-template-columns: repeat(3, 1fr); }
+
+  .nav-btn { flex-direction: column; gap: 0.25rem; font-size: 0.78rem; }
+  .nav-btn i { width: 1.35rem; height: 1.35rem; }
+}
