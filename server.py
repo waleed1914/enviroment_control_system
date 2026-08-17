@@ -35,7 +35,8 @@ GPIO.setup(HEATER_PIN, GPIO.OUT, initial=RELAY_OFF)
 GPIO.setup(LIGHT_PIN, GPIO.OUT, initial=RELAY_OFF)
 GPIO.setup(ATOMIZER_PIN, GPIO.OUT, initial=ATOMIZER_OFF)
 
-dht = adafruit_dht.DHT11(board.D4, use_pulseio=False)
+# Match the initialization verified by the customer's standalone test script.
+dht = adafruit_dht.DHT11(board.D4)
 lock = threading.Lock()
 state = {
     "sensors": {"temp": None, "humidity": None, "ok": False, "error": "waiting for first reading"},
