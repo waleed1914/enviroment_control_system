@@ -4,13 +4,13 @@
 import atexit
 import json
 import signal
+import subprocess
+import sys
 import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-import adafruit_dht
-import board
 import RPi.GPIO as GPIO
 
 
@@ -35,8 +35,6 @@ GPIO.setup(HEATER_PIN, GPIO.OUT, initial=RELAY_OFF)
 GPIO.setup(LIGHT_PIN, GPIO.OUT, initial=RELAY_OFF)
 GPIO.setup(ATOMIZER_PIN, GPIO.OUT, initial=ATOMIZER_OFF)
 
-# Match the initialization verified by the customer's standalone test script.
-dht = adafruit_dht.DHT11(board.D4)
 lock = threading.Lock()
 state = {
     "sensors": {"temp": None, "humidity": None, "ok": False, "error": "waiting for first reading"},
@@ -75,8 +73,16 @@ def set_output(device, on):
 def read_dht():
     global last_dht_error
     try:
-        temperature = dht.temperature
-        humidity = dht.humidity
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "read_dht.py")],
+            capture_output=True,
+            text=True,
+            timeout=6,
+            check=True,
+        )
+        reading = json.loads(result.stdout.strip())
+        temperature = reading["temp"]
+        humidity = reading["humidity"]
         if temperature is not None and humidity is not None:
             with lock:
                 state["sensors"] = {
@@ -91,7 +97,8 @@ def read_dht():
     except Exception as error:
         # Checksum failures are common with DHT sensors. Keep the last valid
         # values, but report the failure through the API and terminal.
-        message = f"{type(error).__name__}: {error}"
+        detail = getattr(error, "stderr", "") or str(error)
+        message = f"{type(error).__name__}: {detail.strip()}"
         with lock:
             state["sensors"]["ok"] = False
             state["sensors"]["error"] = message
@@ -156,7 +163,6 @@ def cleanup():
         GPIO.output(HEATER_PIN, RELAY_OFF)
         GPIO.output(LIGHT_PIN, RELAY_OFF)
         GPIO.output(ATOMIZER_PIN, ATOMIZER_OFF)
-        dht.exit()
     finally:
         GPIO.cleanup()
 
