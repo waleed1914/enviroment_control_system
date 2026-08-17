@@ -127,7 +127,6 @@ export function mount(root) {
           <button class="preset accent-${s.accent}" data-scene="${s.id}">
             <span class="preset-icon"><i data-icon="${s.icon}"></i></span>
             <span style="min-width:0">
-              <span class="preset-no">SCENE ${s.id}</span>
               <div class="preset-name">${s.name}</div>
               <span class="preset-meta"><i data-icon="clock"></i>${s.duration / 60} min</span>
             </span>
