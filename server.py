@@ -5,6 +5,7 @@ import atexit
 import json
 import signal
 import threading
+import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -52,7 +53,6 @@ def set_output(device, on):
     on = bool(on)
     if device == "heater":
         if on:
-            read_dht()
             temperature = state["sensors"]["temp"]
             if temperature is None:
                 raise SafetyError("heater blocked: no valid temperature reading")
@@ -61,7 +61,6 @@ def set_output(device, on):
         GPIO.output(HEATER_PIN, RELAY_ON if on else RELAY_OFF)
     elif device == "atomizer":
         if on:
-            read_dht()
             humidity = state["sensors"]["humidity"]
             if humidity is not None and humidity >= 95:
                 raise SafetyError("atomizer blocked: humidity limit reached")
@@ -79,12 +78,13 @@ def read_dht():
         temperature = dht.temperature
         humidity = dht.humidity
         if temperature is not None and humidity is not None:
-            state["sensors"] = {
-                "temp": temperature,
-                "humidity": humidity,
-                "ok": True,
-                "error": None,
-            }
+            with lock:
+                state["sensors"] = {
+                    "temp": temperature,
+                    "humidity": humidity,
+                    "ok": True,
+                    "error": None,
+                }
             last_dht_error = None
             return
         raise RuntimeError("sensor returned no data")
@@ -92,11 +92,18 @@ def read_dht():
         # Checksum failures are common with DHT sensors. Keep the last valid
         # values, but report the failure through the API and terminal.
         message = f"{type(error).__name__}: {error}"
-        state["sensors"]["ok"] = False
-        state["sensors"]["error"] = message
+        with lock:
+            state["sensors"]["ok"] = False
+            state["sensors"]["error"] = message
         if message != last_dht_error:
             print(f"DHT11 read error: {message}", flush=True)
             last_dht_error = message
+
+
+def sensor_worker():
+    while True:
+        read_dht()
+        time.sleep(2)
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -115,7 +122,6 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/api/state":
             with lock:
-                read_dht()
                 self.send_json(state)
             return
         super().do_GET()
@@ -157,6 +163,7 @@ def cleanup():
 
 def main():
     server = ThreadingHTTPServer((HOST, PORT), Handler)
+    threading.Thread(target=sensor_worker, daemon=True).start()
 
     def stop(_signum, _frame):
         threading.Thread(target=server.shutdown, daemon=True).start()
