@@ -104,6 +104,11 @@ export const actions = {
     emit();
   },
 
+  stopAtomizer() {
+    pulseOff();
+    emit();
+  },
+
   setWorkTime(min) {
     state.run.workTime = min;
     if (!state.run.running) {

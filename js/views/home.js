@@ -105,7 +105,10 @@ export function mount(root) {
             <select class="select" id="h-mist">${options(ATOMIZER_INTERVALS, 5, fmtInterval)}</select>
             <i data-icon="chevron"></i>
           </div>
-          <button class="btn btn-ghost" id="h-mist-now" style="margin-top:.4rem;min-height:2.2rem;font-size:.72rem">MIST NOW</button>
+          <div class="row" style="margin-top:.4rem;gap:.35rem">
+            <button class="btn btn-ghost" id="h-mist-now" style="flex:1;min-height:2.2rem;font-size:.72rem">MIST NOW</button>
+            <button class="btn btn-danger" id="h-mist-stop" style="flex:1;min-height:2.2rem;font-size:.72rem">STOP MIST</button>
+          </div>
         </div>
 
         <div class="tile accent-purple">
@@ -150,6 +153,7 @@ export function mount(root) {
     fan: $('#h-fan', node), fanVal: $('#h-fan-val', node),
     heat: $('#h-heat', node), heatText: $('#h-heat-text', node),
     mist: $('#h-mist', node), time: $('#h-time', node),
+    mistStop: $('#h-mist-stop', node),
     presets: $('#h-presets', node),
   };
 
@@ -167,6 +171,7 @@ export function mount(root) {
   r.heat.addEventListener('click', () => actions.setHeater(r.heat.getAttribute('aria-checked') !== 'true'));
   r.mist.addEventListener('change', () => actions.setAtomizerInterval(+r.mist.value));
   $('#h-mist-now', node).addEventListener('click', () => actions.pulseAtomizer());
+  r.mistStop.addEventListener('click', () => actions.stopAtomizer());
   r.time.addEventListener('change', () => actions.setWorkTime(+r.time.value));
   r.devLed.addEventListener('click', () => actions.setLed(!r.devLed.classList.contains('is-live')));
 
@@ -236,6 +241,7 @@ export function mount(root) {
     r.heatText.className = `state-text ${devices.heater ? 'on' : 'off'}`;
 
     if (+r.mist.value !== devices.atomizerInterval) r.mist.value = devices.atomizerInterval;
+    r.mistStop.disabled = !devices.atomizerOn;
     if (+r.time.value !== run.workTime) r.time.value = run.workTime;
 
     /* presets */

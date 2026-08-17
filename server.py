@@ -38,9 +38,10 @@ GPIO.setup(ATOMIZER_PIN, GPIO.OUT, initial=ATOMIZER_OFF)
 dht = adafruit_dht.DHT11(board.D4, use_pulseio=False)
 lock = threading.Lock()
 state = {
-    "sensors": {"temp": None, "humidity": None},
+    "sensors": {"temp": None, "humidity": None, "ok": False, "error": "waiting for first reading"},
     "devices": {"fan": 0, "heater": False, "atomizer": False, "led": False},
 }
+last_dht_error = None
 
 
 class SafetyError(Exception):
@@ -73,15 +74,29 @@ def set_output(device, on):
 
 
 def read_dht():
+    global last_dht_error
     try:
         temperature = dht.temperature
         humidity = dht.humidity
         if temperature is not None and humidity is not None:
-            state["sensors"] = {"temp": temperature, "humidity": humidity}
-    except RuntimeError:
-        # Transient checksum failures are normal for DHT sensors. Retain the
-        # last valid reading and let the next UI poll retry.
-        pass
+            state["sensors"] = {
+                "temp": temperature,
+                "humidity": humidity,
+                "ok": True,
+                "error": None,
+            }
+            last_dht_error = None
+            return
+        raise RuntimeError("sensor returned no data")
+    except Exception as error:
+        # Checksum failures are common with DHT sensors. Keep the last valid
+        # values, but report the failure through the API and terminal.
+        message = f"{type(error).__name__}: {error}"
+        state["sensors"]["ok"] = False
+        state["sensors"]["error"] = message
+        if message != last_dht_error:
+            print(f"DHT11 read error: {message}", flush=True)
+            last_dht_error = message
 
 
 class Handler(SimpleHTTPRequestHandler):

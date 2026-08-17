@@ -83,7 +83,11 @@ class HttpHardware {
       const r = await fetch(this.base + '/api/state');
       if (!r.ok) throw new Error(r.status);
       const s = await r.json();
-      return { temp: s.sensors.temp, humidity: s.sensors.humidity, ok: true };
+      return {
+        temp: s.sensors.temp,
+        humidity: s.sensors.humidity,
+        ok: s.sensors.ok !== false,
+      };
     } catch {
       return { temp: null, humidity: null, ok: false };
     }
