@@ -48,7 +48,13 @@
 <!-- Toast host -->
 <div id="toast-host" class="toast-host"></div>
 
-<script>window.CB_BACKEND = 'http';</script>
+<script>
+  // Raspberry Pi hardware is the default. Add ?sim=1 for the Windows/demo
+  // simulator, which requires no GPIO backend.
+  window.CB_BACKEND = new URLSearchParams(location.search).has('sim')
+    ? 'sim'
+    : 'http';
+</script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>
