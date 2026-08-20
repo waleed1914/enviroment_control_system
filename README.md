@@ -97,7 +97,8 @@ Current connected wiring (physical 40-pin header numbering):
 - Light relay: physical pin 38 (BCM GPIO20)
 - Heating pad relay: physical pin 40 (BCM GPIO21)
 
-The heating pad, light, and atomizer relay channels are active-low.
+The heating-pad and light relay channels are active-high. The atomizer relay
+channel is active-low.
 
 ## Safety behaviour already built in
 

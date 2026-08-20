@@ -23,9 +23,10 @@ HEATER_PIN = 40
 LIGHT_PIN = 38
 ATOMIZER_PIN = 37
 
-# All three installed relay channels are active-low.
-RELAY_ON = GPIO.LOW
-RELAY_OFF = GPIO.HIGH
+# Heating-pad and light relay channels are active-high.
+RELAY_ON = GPIO.HIGH
+RELAY_OFF = GPIO.LOW
+# The atomizer relay channel is active-low.
 ATOMIZER_ON = GPIO.LOW
 ATOMIZER_OFF = GPIO.HIGH
 
