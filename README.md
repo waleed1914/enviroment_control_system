@@ -77,7 +77,7 @@ snapshot handed to them in `update(state)`.
 
 ```
 GET  /api/state                -> { sensors: { temp, humidity } }
-POST /api/fan       {value}    -> accepted for UI state only; no GPIO output
+POST /api/fan       {value}    -> 0-100 UI %, mapped to calibrated steps 0-10
 POST /api/heater    {on}       -> relay
 POST /api/atomizer  {on}       -> relay
 POST /api/led       {on}       -> relay
@@ -86,9 +86,8 @@ POST /api/led       {on}       -> relay
 Two things to keep in step between this UI and the Python side:
 
 - **GPIO numbers** live in `PINOUT` in [js/config.js](js/config.js) (BCM numbering).
-- **`FAN_MIN_DUTY`** — below 25 % the dimmer is switched off rather than left
-  humming, because most AC fans will not start down there. Enforce the same
-  floor in firmware.
+- **Fan calibration** — UI values are mapped to steps 0-10; step 10 is capped
+  at the verified 56% dimmer setting.
 
 Current connected wiring (physical 40-pin header numbering):
 
@@ -114,8 +113,8 @@ independent thermal protection and correctly rated switching hardware.
 
 ## Not done yet
 
-- Fan GPIO control (the API retains its requested value until the fan hardware
-  is connected).
+- Fan output is capped at the calibrated 56% dimmer setting when the UI is at
+  100% (step 10 of 10).
 - Scene changes persist to `localStorage`, not to a file on the Pi.
 - Screen brightness is applied as a CSS dim; on the Pi it should write to
   `/sys/class/backlight/…/brightness` through the backend.

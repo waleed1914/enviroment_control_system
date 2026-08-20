@@ -47,11 +47,10 @@ export const WORK_TIMES         = [5, 10, 15, 20, 30, 45, 60];
 export const ATOMIZER_PULSE_SEC = 8;
 
 /**
- * The 220 V zero-crossing dimmer is not linear at the bottom of its range and
- * most AC fans will not start below ~25 %. Anything under MIN_DUTY is treated
- * as OFF so we never stall the motor with a humming coil.
+ * The backend maps UI percentages to the customer's calibrated 0-10 dimmer
+ * steps. A non-zero UI value therefore selects at least step 1.
  */
-export const FAN_MIN_DUTY = 25;
+export const FAN_MIN_DUTY = 1;
 
 /** Sensor polling. DHT11 must not be read faster than once per second. */
 export const SENSOR_POLL_MS = 2000;
@@ -81,12 +80,12 @@ export const PINOUT = {
   relayHeater:  { pin: 21, note: 'Physical pin 40 — heating pad relay' },
   relayAtomizer:{ pin: 26, note: 'Physical pin 37 — atomizer relay' },
   relayLed:     { pin: 20, note: 'Physical pin 38 — light relay' },
-  dimmerPwm:    { pin: 18, note: 'Fan PWM — not connected / backend disabled' },
-  dimmerZc:     { pin: 23, note: 'Fan zero-cross — not connected / backend disabled' },
+  dimmerPwm:    { pin: 18, note: 'Physical pin 12 — fan dimmer gate' },
+  dimmerZc:     { pin: 17, note: 'Physical pin 11 — fan zero-cross input' },
 };
 
 export const APP = {
   name: 'Climate Box',
-  version: '0.2.0-test',
+  version: '0.3.0-test',
   display: '720 × 1280 portrait · Touch Display 2',
 };

@@ -22,6 +22,12 @@ ROOT = Path(__file__).resolve().parent
 HEATER_PIN = 40
 LIGHT_PIN = 38
 ATOMIZER_PIN = 37
+ZERO_CROSS_PIN = 11
+DIMMER_PIN = 12
+
+MAX_DELAY = 0.0090
+MAX_FAN_POWER = 56.0
+fan_speed = 0
 
 # Heating-pad and light relay channels are active-high.
 RELAY_ON = GPIO.HIGH
@@ -35,6 +41,8 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(HEATER_PIN, GPIO.OUT, initial=RELAY_OFF)
 GPIO.setup(LIGHT_PIN, GPIO.OUT, initial=RELAY_OFF)
 GPIO.setup(ATOMIZER_PIN, GPIO.OUT, initial=ATOMIZER_OFF)
+GPIO.setup(ZERO_CROSS_PIN, GPIO.IN)
+GPIO.setup(DIMMER_PIN, GPIO.OUT, initial=GPIO.LOW)
 
 lock = threading.Lock()
 state = {
@@ -46,6 +54,44 @@ last_dht_error = None
 
 class SafetyError(Exception):
     pass
+
+
+def speed_to_power(speed):
+    if speed <= 0:
+        return 0.0
+    if speed >= 10:
+        return MAX_FAN_POWER
+    return speed * (MAX_FAN_POWER / 10.0)
+
+
+def fire_triac():
+    speed = fan_speed
+    if speed <= 0:
+        return
+    delay = MAX_DELAY * (1.0 - speed_to_power(speed) / 100.0)
+    time.sleep(delay)
+    if fan_speed <= 0:
+        return
+    GPIO.output(DIMMER_PIN, GPIO.HIGH)
+    time.sleep(0.0001)
+    GPIO.output(DIMMER_PIN, GPIO.LOW)
+
+
+def zero_cross(_channel):
+    if fan_speed > 0:
+        threading.Thread(target=fire_triac, daemon=True).start()
+
+
+def set_fan_percent(value):
+    global fan_speed
+    percent = max(0, min(100, int(value)))
+    fan_speed = 0 if percent == 0 else max(1, min(10, round(percent / 10)))
+    if fan_speed == 0:
+        GPIO.output(DIMMER_PIN, GPIO.LOW)
+    state["devices"]["fan"] = fan_speed * 10
+
+
+GPIO.add_event_detect(ZERO_CROSS_PIN, GPIO.RISING, callback=zero_cross)
 
 
 def set_output(device, on):
@@ -146,9 +192,7 @@ class Handler(SimpleHTTPRequestHandler):
                 elif self.path == "/api/led":
                     set_output("led", data.get("on", False))
                 elif self.path == "/api/fan":
-                    # Fan hardware is not connected yet; retain the requested
-                    # value so the UI remains usable until it is installed.
-                    state["devices"]["fan"] = max(0, min(100, int(data.get("value", 0))))
+                    set_fan_percent(data.get("value", 0))
                 else:
                     self.send_json({"error": "not found"}, 404)
                     return
@@ -160,7 +204,12 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def cleanup():
+    global fan_speed
+    fan_speed = 0
     try:
+        GPIO.remove_event_detect(ZERO_CROSS_PIN)
+        time.sleep(0.02)
+        GPIO.output(DIMMER_PIN, GPIO.LOW)
         GPIO.output(HEATER_PIN, RELAY_OFF)
         GPIO.output(LIGHT_PIN, RELAY_OFF)
         GPIO.output(ATOMIZER_PIN, ATOMIZER_OFF)
