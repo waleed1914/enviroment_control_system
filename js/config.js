@@ -81,12 +81,12 @@ export const PINOUT = {
   relayHeater:  { pin: 21, note: 'Physical pin 40 — heating pad relay' },
   relayAtomizer:{ pin: 26, note: 'Physical pin 37 — atomizer relay' },
   relayLed:     { pin: 20, note: 'Physical pin 38 — light relay' },
-  dimmerPwm:    { pin: 18, note: 'Dimmer GATE (PWM) — fan' },
-  dimmerZc:     { pin: 23, note: 'Dimmer Z-C — zero-cross interrupt' },
+  dimmerPwm:    { pin: 18, note: 'Fan PWM — not connected / backend disabled' },
+  dimmerZc:     { pin: 23, note: 'Fan zero-cross — not connected / backend disabled' },
 };
 
 export const APP = {
   name: 'Climate Box',
-  version: '0.1.0',
+  version: '0.2.0-test',
   display: '720 × 1280 portrait · Touch Display 2',
 };

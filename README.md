@@ -77,7 +77,7 @@ snapshot handed to them in `update(state)`.
 
 ```
 GET  /api/state                -> { sensors: { temp, humidity } }
-POST /api/fan       {value}    -> 0-100, zero-cross dimmer duty
+POST /api/fan       {value}    -> accepted for UI state only; no GPIO output
 POST /api/heater    {on}       -> relay
 POST /api/atomizer  {on}       -> relay
 POST /api/led       {on}       -> relay

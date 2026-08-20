@@ -18,7 +18,7 @@ const state = {
   devices: {
     fan: 0,               // 0-100 %
     heater: false,
-    led: true,
+    led: false,
     atomizerInterval: 5,  // minutes, 0 = off
     atomizerOn: false,    // relay state during a pulse
     atomizerNext: 0,      // seconds until next pulse
