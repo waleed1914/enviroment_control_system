@@ -1,5 +1,8 @@
 # Climate Box — touch UI
 
+For a new Raspberry Pi, follow the step-by-step
+[installation guide](RASPBERRY_PI_INSTALL.md).
+
 Front-end for the Raspberry Pi 5 climate box: DHT11 temperature/humidity,
 relay-driven heating pad / atomizer / LED, and a 220 V zero-crossing dimmer
 for the fan. Includes a responsive **720 × 1280 portrait** layout for the
